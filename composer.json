@@ -1,0 +1,25 @@
+{
+	"$schema": "https://getcomposer.org/schema.json",
+	"name": "osmuhin/jessica",
+	"type": "project",
+	"require": {
+		"wikimedia/composer-merge-plugin": "^2.1"
+	},
+	"config": {
+		"allow-plugins": {
+			"wikimedia/composer-merge-plugin": true
+		}
+	},
+	"extra": {
+		"merge-plugin": {
+			"include": [
+				"core/composer.json"
+			]
+		}
+	},
+	"autoload": {
+		"psr-4": {
+			"Core\\App\\": "core/app/"
+		}
+	}
+}

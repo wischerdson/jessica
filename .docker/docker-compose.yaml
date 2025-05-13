@@ -1,0 +1,70 @@
+name: webcanape
+
+services:
+  mariadb:
+    image: mariadb:11.3
+    volumes:
+      - ../.runtime/mariadb:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+      MARIADB_DATABASE: ${DB_DATABASE}
+    ports:
+      - 3306:3306
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    volumes:
+      - ./phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php:ro
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+      UPLOAD_LIMIT: 1G
+    ports:
+      - 8080:80
+    depends_on:
+      - mariadb
+
+  php:
+    build: ./php
+    volumes:
+      - ../:/app
+      - ../.runtime/cache/composer:/.composer/cache
+    working_dir: /app
+    user: $USER_ID:$GROUP_ID
+    depends_on:
+      - redis
+      - mariadb
+
+  cron:
+    build: ./cron
+    volumes:
+      - ../:/app
+      - ../.runtime/cron:/var/log
+    user: $USER_ID:$GROUP_ID
+    depends_on:
+      - redis
+      - mariadb
+
+  queue:
+    build: ./php
+    volumes:
+      - ../:/app
+    working_dir: /app
+    user: $USER_ID:$GROUP_ID
+    entrypoint: ["php", "/app/artisan", "queue:work"]
+    depends_on:
+      - redis
+      - mariadb
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ../:/app:ro
+    working_dir: /app
+    depends_on:
+      - php
+
+  redis:
+    image: redis:8.0.0-alpine
