@@ -15,10 +15,7 @@
 		"psr-4": {
 			"Core\\Database\\Factories\\": "database/factories/",
 			"Core\\Database\\Seeders\\": "database/seeders/"
-		},
-		"files": [
-			"helpers.php"
-		]
+		}
 	},
 	"autoload-dev": {
 		"psr-4": {
